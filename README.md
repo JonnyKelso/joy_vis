@@ -27,6 +27,8 @@ Restrict plot area to this size
 
 5. Animate - only single draw done for now
 
+6. Move the visualisation to javascript Processing and host online - currently uses Java for Processing, for the desktop
+
 # current screenshot
 
 ![alt text](http://i.imgur.com/ckk0ooY.png "joy-vis")
