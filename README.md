@@ -25,10 +25,8 @@ Restrict plot area to this size
 
 4. Line stroke width and colouring don't match original yet
 
-~~5. Animate - only single draw done for now~~
-
-6. Move the visualisation to javascript Processing and host online - currently uses Java for Processing, for the desktop
+5. Move the visualisation to javascript Processing and host online - currently uses Java for Processing, for the desktop
 
 # current screenshot
 
-![alt text](http://i.imgur.com/QkyEDiM.gifv "joy-vis")
+![alt text](http://i.imgur.com/QkyEDiM.gif)
