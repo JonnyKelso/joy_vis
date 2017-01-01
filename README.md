@@ -31,4 +31,4 @@ Restrict plot area to this size
 
 # current screenshot
 
-![alt text](http://i.imgur.com/tzmaIA0.png "joy-vis")
+![alt text](http://i.imgur.com/QkyEDiM.gifv "joy-vis")
