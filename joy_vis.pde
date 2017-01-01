@@ -6,28 +6,35 @@ AudioPlayer player;
 FFT         fft;
 JoyFFTList fft_list;
 
-int vis_width = 600;
-int vis_height = 600;
-int line_separation = 5;
+boolean playing = true;
+int vis_width = 800;
+int vis_height = 800;
+int line_separation = 20;
 int points_per_line = 50;
 int point_separation = 0;
 int max_z_deviation = 5;
 int max_lines = vis_height / line_separation;
 ArrayList<JoyLine> lines = new ArrayList<JoyLine>();
-int num_lines = 100;
+int num_lines = 50;
 float rotate_factor = 0;
-int min_noise = 3;
+int min_noise = 5;
+int start_x = 0;
+int start_y = 0;
+int x_shift_2d_plot = 80;
+boolean debug_spectrum = true;
+
 void setup()
 {
   size(800, 800, P3D);         // use 3D renderer
-  stroke(255, 255, 255, 100);  // white pen, with a touch of alpha
-
+  stroke(255, 255, 255);  // white pen, with a touch of alpha
+  strokeWeight(1); 
+ 
   minim = new Minim(this);
-  frameRate(60);
+  frameRate(30);
   // specify that we want the audio buffers of the AudioPlayer
   // to be 1024 samples long because our FFT needs to have 
   // a power-of-two buffer size and this is a good size.
-  player = minim.loadFile("dad.mp3", 1024);
+  player = minim.loadFile("here it comes.mp3", 1024);
 
   // loop the file indefinitely
   player.loop();
@@ -45,10 +52,11 @@ void setup()
     int y = (i * line_separation);
     point_separation = vis_width / points_per_line;
     // restrict the x value of the lines to within the size of the canvas
-    JoyLine my_line = new JoyLine(new JoyPoint(width-vis_width, y, 0.0), new JoyPoint(vis_width, y, 0.0), points_per_line, 10);
+    //JoyLine my_line = new JoyLine(new JoyPoint(width-vis_width, y, 0.0), new JoyPoint(vis_width, y, 0.0), points_per_line, 10);
+    JoyLine my_line = new JoyLine(new JoyPoint(0, y, 0.0), new JoyPoint(vis_width, y, 0.0), points_per_line, 15);
     lines.add(my_line);
   }
-  
+  //start_x = 
   fft_list = new JoyFFTList(points_per_line);
 
   //noLoop(); // only draw through once. useful for debugging. change this when we have sound coming in and we're processing each frame
@@ -57,12 +65,27 @@ void setup()
 
 void draw()
 {
+  //point(0,0,0);
+  //point(vis_width,vis_height,0);
+  //ellipse(0,0, 100, 100);
   background(0);                  // black background
-  translate(-50, height/6, -80);   // reposition the drawn area centrally
-  rotateX(radians(40));           // tilt the drawn area back
-
-  //noFill();
-  fill(0);
+  translate(0, 20,-800);//vis_width/2, height/6);   // reposition the drawn area centrally
+  rotateX(radians(30));           // tilt the drawn area back
+  translate(0, -200,0);
+  noFill();
+  //fill(0);
+  
+  // plot a 2D spectrum under the main plot
+  if (debug_spectrum)
+  {
+    for (int i = 0; i < fft.specSize(); i++)
+    {
+      int x = int(map(i, 0, fft.specSize(), 200, 600));
+      // draw the line for frequency band i, scaling it by 4 so we can see it a bit better
+      line(x, 1200, x, 1200 - fft.getBand(i)*2);
+    }
+  }
+  //ellipse(100,100,100,100);
 
   // perform a forward FFT on the samples in jingle's mix buffer,
   // which contains the mix of both the left and right channels of the file
@@ -74,7 +97,7 @@ void draw()
   // draw the fft for the current lne (the nearest line)
   for (int j = 0; j < points_per_line; j++)
   {
-    float fft_point = fft.getBand(int(map(j, 1, points_per_line, 0, fft.specSize()))) * 5; // x5 scaling factor so we can see it!!
+    float fft_point = fft.getBand(int(map(j, 0, points_per_line, 0, fft.specSize()))) *15; // x5 scaling factor so we can see it!!
     fft_line.add_at(j, fft_point);
   }
 
@@ -96,10 +119,10 @@ void draw()
 
     // start drawing the shape
     beginShape();
-    
+
     // draw the first point manually, so we set the z to 0
     JoyPoint first_point = lines.get(i).get_point(0);
-    vertex(first_point.x, first_point.y, 0);
+    curveVertex(first_point.x, first_point.y, 0);
 
     // now loop through the remaining points, setting the z from the fft_list we populated
     // at the start of draw()
@@ -112,35 +135,45 @@ void draw()
       float z = 0;
       if ((pt > (points_per_line * 0.25)) && (pt < (points_per_line * 0.75)))
       {
-        if(fft_this_line == null)
+        if (fft_this_line == null)
         {
-         z = int(random(1,min_noise));
-        }
-        else
+          z = int(random(1, min_noise));
+        } else
         {
           // set a proper value from the fft_list
           z = fft_this_line.get_at(pt);  
-          if(z < min_noise)
+          if (z < min_noise)
           {
             // if the value would be too low (usually approxiamtes to 0 with our pixel precision) 
             // because of silence in the audio, then just give it the same minimal Perlin noise
-             z = int(random(1,min_noise));
+            z = int(random(1, min_noise));
           }
         }
-      }
-      else 
+      } else 
       {
         // give the last 1/4 of the points of the line a minimal z value set from Perlin noise
         // this is because the original album cover art does this. (the first 1/4 is also just minimal noise). 
-        z = int(random(1,min_noise));
+        z = int(random(1, min_noise));
       }
       // set the vertex
-      vertex(my_point.x, my_point.y, z);
+      curveVertex(my_point.x, my_point.y, z);
     }
 
     // set the last point manually, so we can set z to 0
     JoyPoint last_point = lines.get(i).get_point(points_per_line - 1);
-    vertex(last_point.x, last_point.y, 0);
+    curveVertex(last_point.x, last_point.y, 0);
     endShape();
+  }
+}
+// pause audio if mouse button is clicked
+void mousePressed()
+{
+  if ( player.isPlaying() )
+  {
+    player.pause();
+  } else
+  {
+    // simply call loop again to resume playing from where it was paused
+    player.loop();
   }
 }

@@ -24,7 +24,7 @@ class JoyLine
     {
       int new_x = start.x + (point_sep * i);
       int new_y = start.y;
-      float new_z = random(0,max_z_deviation) * 5 + 1;
+      float new_z = 0;//random(0,max_z_deviation) * 5 + 1;
 
       points[i] = new JoyPoint(new_x, new_y, new_z);
     } //<>//
