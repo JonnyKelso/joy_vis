@@ -11,10 +11,14 @@ The original Joy Division art is an image based on a stacked plot of radio waves
 The main entry point is in joy_vis.pde, which contains the setup() and draw()functions. Processing calls setup() once at startup and then draw() once every frame.
 
 joy_vis.pde  - Main entry point, contains main drawing loop
+
 JoyLine.pde	 - A class defining a line to draw, contains an array of JoyPoints
+
 JoyPoint.pde - A class defining a single point. Simple x,y,z container.
 
+
 JoyFFTList.pde - A linked list class defining a list of JoyFFTLines.
+
 JoyFFTLine.pde - A class defining a sinlge FFT line. Contains the FFT values of the incoming audio, transformed into z-values ready for plotting.
 
 # how to use
