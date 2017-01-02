@@ -34,7 +34,7 @@ void setup()
   // specify that we want the audio buffers of the AudioPlayer
   // to be 1024 samples long because our FFT needs to have 
   // a power-of-two buffer size and this is a good size.
-  player = minim.loadFile("here it comes.mp3", 1024);
+  player = minim.loadFile("player.mp3", 1024);
 
   // loop the file indefinitely
   player.loop();
@@ -65,15 +65,12 @@ void setup()
 
 void draw()
 {
-  //point(0,0,0);
-  //point(vis_width,vis_height,0);
-  //ellipse(0,0, 100, 100);
   background(0);                  // black background
-  translate(0, 20,-800);//vis_width/2, height/6);   // reposition the drawn area centrally
+  translate(0, 20,-800);          // reposition the drawn area centrally
   rotateX(radians(30));           // tilt the drawn area back
   translate(0, -200,0);
-  noFill();
-  //fill(0);
+  //noFill();
+  fill(0);
   
   // plot a 2D spectrum under the main plot
   if (debug_spectrum)
@@ -85,7 +82,6 @@ void draw()
       line(x, 1200, x, 1200 - fft.getBand(i)*2);
     }
   }
-  //ellipse(100,100,100,100);
 
   // perform a forward FFT on the samples in jingle's mix buffer,
   // which contains the mix of both the left and right channels of the file
