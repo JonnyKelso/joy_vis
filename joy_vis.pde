@@ -21,20 +21,29 @@ int min_noise = 5;
 int start_x = 0;
 int start_y = 0;
 int x_shift_2d_plot = 80;
-boolean debug_spectrum = true;
-
+boolean debug_spectrum = false;
+String audio_file = "disorder.mp3";
+int scale_factor = 15;
 void setup()
 {
-  size(800, 800, P3D);         // use 3D renderer
+  size(800, 800, P3D);    // use 3D renderer
   stroke(255, 255, 255);  // white pen, with a touch of alpha
   strokeWeight(1); 
- 
+
   minim = new Minim(this);
   frameRate(30);
+
+  setup_audio();
+
+  //noLoop(); // only draw through once. useful for debugging. change this when we have sound coming in and we're processing each frame
+}
+
+void setup_audio()
+{
   // specify that we want the audio buffers of the AudioPlayer
   // to be 1024 samples long because our FFT needs to have 
   // a power-of-two buffer size and this is a good size.
-  player = minim.loadFile("player.mp3", 1024);
+  player = minim.loadFile(audio_file, 1024);
 
   // loop the file indefinitely
   player.loop();
@@ -58,20 +67,18 @@ void setup()
   }
   //start_x = 
   fft_list = new JoyFFTList(points_per_line);
-
-  //noLoop(); // only draw through once. useful for debugging. change this when we have sound coming in and we're processing each frame
 }
-
 
 void draw()
 {
   background(0);                  // black background
-  translate(0, 20,-800);          // reposition the drawn area centrally
+  translate(0, 20, -800);          // reposition the drawn area centrally
   rotateX(radians(30));           // tilt the drawn area back
-  translate(0, -200,0);
+  translate(0, -200, 0);
   //noFill();
   fill(0);
-  
+
+
   // plot a 2D spectrum under the main plot
   if (debug_spectrum)
   {
@@ -93,7 +100,7 @@ void draw()
   // draw the fft for the current lne (the nearest line)
   for (int j = 0; j < points_per_line; j++)
   {
-    float fft_point = fft.getBand(int(map(j, 0, points_per_line, 0, fft.specSize()))) *15; // x5 scaling factor so we can see it!!
+    float fft_point = fft.getBand(int(map(j, 0, points_per_line, 0, fft.specSize()))) * scale_factor; // x5 scaling factor so we can see it!!
     fft_line.add_at(j, fft_point);
   }
 
@@ -160,16 +167,52 @@ void draw()
     curveVertex(last_point.x, last_point.y, 0);
     endShape();
   }
+  drawUI();
 }
 // pause audio if mouse button is clicked
-void mousePressed()
+void keyPressed()
 {
-  if ( player.isPlaying() )
+  if (key == 'p' || key == 'P')
   {
-    player.pause();
-  } else
+    if ( player.isPlaying() )
+    {
+      player.pause();
+    } else
+    {
+      // simply call loop again to resume playing from where it was paused
+      player.loop();
+    }
+  } else if (key == 'l' || key == 'L')
   {
-    // simply call loop again to resume playing from where it was paused
-    player.loop();
+    selectInput("Select a file to process:", "fileSelected");
   }
+  else if (key == '+')
+  {
+    scale_factor++;
+  }
+  else if (key == '-')
+  {
+    scale_factor--;
+  }
+}
+
+void fileSelected(File selection) {
+  if (selection == null) {
+    println("Window was closed or the user hit cancel.");
+  } else {
+    println("User selected " + selection.getAbsolutePath());
+    audio_file = selection.getAbsolutePath();
+    player.pause();
+    setup_audio();
+  }
+}
+
+// show text instructions for use
+void drawUI()
+{
+  fill(255, 255, 255);
+  textSize(22);
+  text("press 'P' to pause audio", 10, height+200);
+  text("press 'L' to open file browser", 10, height+220);
+  text("press '+ / -' to increase / decrease amplitude (now x" + scale_factor + ")", 10, height+240);
 }
