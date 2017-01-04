@@ -27,4 +27,4 @@ Copy the files in this repo into the default sketchbook and run using the Proces
 
 # current screenshot
 
-![alt text](http://i.imgur.com/QkyEDiM.gif)
+![alt text](http://i.imgur.com/HzhsXWN.gif)
